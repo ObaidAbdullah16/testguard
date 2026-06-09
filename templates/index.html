@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TestGuard — ML-Powered CI Test Selector</title>
+  <meta name="description" content="Stop running all your tests on every PR. TestGuard uses ML to predict exactly which tests need to run based on your code changes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1 class="logo-text">TestGuard</h1>
+          <p class="logo-sub">ML-Powered CI Test Selector</p>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="badge">Random Forest</span>
+        <span class="badge">scikit-learn</span>
+        <span class="badge">Docker</span>
+        <span class="badge">GitHub Actions</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main Layout ──────────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Left: Controls -->
+    <aside class="panel controls-panel">
+      <h2 class="panel-title">Pull Request Details</h2>
+
+      <!-- Module selector -->
+      <div class="field">
+        <label class="field-label">Changed Modules</label>
+        <p class="field-hint">Which parts of the codebase did you modify?</p>
+        <div class="module-grid" id="module-grid">
+          {% for module in modules %}
+          <button
+            class="module-chip"
+            id="chip-{{ module }}"
+            data-module="{{ module }}"
+            onclick="toggleModule(this)"
+          >
+            <span class="chip-icon">{{ {'auth':'🔐','payments':'💳','users':'👤','notifications':'🔔','api':'🌐','core':'⚙️'}[module] }}</span>
+            <span>{{ module }}</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- PR size -->
+      <div class="field">
+        <label class="field-label">PR Size</label>
+        <div class="radio-group">
+          <label class="radio-opt">
+            <input type="radio" name="pr_size" value="0" />
+            <span class="radio-box"></span>
+            Small <em>&lt;50 lines</em>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="pr_size" value="1" checked />
+            <span class="radio-box"></span>
+            Medium <em>50–300 lines</em>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="pr_size" value="2" />
+            <span class="radio-box"></span>
+            Large <em>&gt;300 lines</em>
+          </label>
+        </div>
+      </div>
+
+      <!-- Files changed slider -->
+      <div class="field">
+        <label class="field-label">
+          Files Changed: <span id="file-count-label" class="accent-text">5</span>
+        </label>
+        <input
+          type="range" id="num-files"
+          min="1" max="25" value="5"
+          class="slider"
+          oninput="document.getElementById('file-count-label').textContent = this.value"
+        />
+        <div class="slider-labels"><span>1</span><span>25</span></div>
+      </div>
+
+      <!-- Predict button -->
+      <button class="predict-btn" id="predict-btn" onclick="predict()">
+        <span id="btn-text">Run Prediction</span>
+        <span id="btn-spinner" class="spinner hidden"></span>
+      </button>
+
+      <p class="disclaimer">
+        Model trained on {{ total }} test files across 6 modules.
+        Predictions based on historical commit patterns.
+      </p>
+    </aside>
+
+    <!-- Right: Results -->
+    <section class="panel results-panel" id="results-panel">
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>Select modules to analyse</h3>
+        <p>TestGuard will predict which of your {{ total }} tests are at risk — and which ones are safe to skip.</p>
+        <div class="empty-flow">
+          <div class="flow-step"><span>1</span> Select changed modules</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span>2</span> Set PR details</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><span>3</span> Get predictions</div>
+        </div>
+      </div>
+
+      <!-- Results (hidden until prediction) -->
+      <div id="results" class="hidden">
+
+        <!-- Stats bar -->
+        <div class="stats-row" id="stats-row"></div>
+
+        <!-- Two columns -->
+        <div class="results-grid">
+          <div class="test-column">
+            <h3 class="col-title danger-text">⚠ Must Run</h3>
+            <div id="run-list" class="test-list"></div>
+          </div>
+          <div class="test-column">
+            <h3 class="col-title safe-text">✓ Safe to Skip</h3>
+            <div id="skip-list" class="test-list"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>Trained on 700 synthetic commit records · MultiOutputClassifier · RandomForest · 14 test files</p>
+  </footer>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
