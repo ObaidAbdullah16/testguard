@@ -2,7 +2,7 @@
 
 > Stop running all 14 tests on every PR. Let a trained model decide which ones actually need to run.
 
-**Live Website** : https://predictascale.obaidinfo.xyz/
+**Live Website** : https://testguard.obaidinfo.xyz/
 
 ## The Problem
 
