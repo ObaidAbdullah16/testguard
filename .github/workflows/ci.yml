@@ -51,21 +51,21 @@ jobs:
           docker stop testguard
 
   # ── Job 3: Deploy to AWS EC2 (fill in your credentials) ────────────────────
-  # deploy:
-  #   name: Deploy to AWS EC2
-  #   runs-on: ubuntu-latest
-  #   needs: docker
-  #   if: github.ref == 'refs/heads/main'
-  #
-  #   steps:
-  #     - name: SSH & deploy
-  #       uses: appleboy/ssh-action@v1
-  #       with:
-  #         host:     ${{ secrets.EC2_HOST }}
-  #         username: ${{ secrets.EC2_USER }}
-  #         key:      ${{ secrets.EC2_SSH_KEY }}
-  #         script: |
-  #           cd ~/testguard
-  #           git pull origin main
-  #           docker-compose down
-  #           docker-compose up --build -d
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+  
+    steps:
+      - name: SSH & deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key:      ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/testguard
+            git pull origin main
+            docker-compose down
+            docker-compose up --build -d
