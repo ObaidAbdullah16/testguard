@@ -2,6 +2,8 @@
 
 > Stop running all 14 tests on every PR. Let a trained model decide which ones actually need to run.
 
+**Live Website** : https://predictascale.obaidinfo.xyz/
+
 ## The Problem
 
 In any growing codebase, running the entire test suite on every pull request wastes CI time and developer attention. A change to the `auth` module should never have to run `test_payments` or `test_notifications`.
